@@ -30,6 +30,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'echo "MYTEST: >${MYTEST}<"'
+                sh '(set -o posix; set)'
             }
         }
         stage('Upload') {
