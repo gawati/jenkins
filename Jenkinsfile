@@ -24,7 +24,7 @@ pipeline {
         }
         stage('Setup') {
             steps {
-                sh 'echo MYTEST=\\\"Preload through shell environment.\\\" >>.bashrc'
+                sh 'echo MYTEST=\\\"Preload through shell environment.\\\" >.bashrc'
             }
         }
         stage('Build') {
