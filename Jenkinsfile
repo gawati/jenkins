@@ -4,7 +4,6 @@ pipeline {
     environment { 
         // CI="false"
         DLD="/tmp"
-        PKF="jenkinstest"
     } 
 
 //  define {
@@ -36,15 +35,14 @@ pipeline {
         stage('Upload') {
             steps {
                 script {
-                    def packageFile = readJSON file: 'package.json'
-                    sh "tar -cvjf $DLD/$PKF-${GIT_COMMIT}.tbz ."
-                    sh "[ -L $DLD/$PKF-latest.tbz ] && rm -f $DLD/$PKF-latest.tbz ; exit 0"
-                    sh "[ -e $DLD/$PKF-latest.tbz ] || ln -s $PKF-${packageFile.version}.tbz $DLD/$PKF-latest.tbz"
-                    sh "[ -L $DLD/$PKF-${packageFile.version}.tbz ] && rm -f $DLD/$PKF-${GIT_COMMIT}.tbz ; exit 0"
-                    sh "[ -e $DLD/$PKF-${packageFile.version}.tbz ] || ln -s $PKF-${GIT_COMMIT}.tbz $DLD/$PKF-${packageFile.version}.tbz"
-                    //sh "cd build ; zip -r - . > $DLD/$PKF-${GIT_COMMIT}.zip"
-                    //sh "[ -L $DLD/$PKF-latest.zip ] && rm -f $DLD/$PKF-latest.zip ; exit 0"
-                    //sh "[ -e $DLD/$PKF-latest.zip ] || ln -s $PKF-${packageFile.version}.zip $DLD/$PKF-latest.zip"
+                    def PkgJsn = readJSON file: 'package.json'
+                    sh '''
+tar -cvjf "${DLD}/${PkgJsn.name}-${GIT_COMMIT}.tbz" .
+[ -L "${DLD}/${PkgJsn.name}-latest.tbz" ] && rm -f "${DLD}/${PkgJsn.name}-latest.tbz"
+[ -e "${DLD}/${PkgJsn.name}-latest.tbz" ] || ln -s "${PkgJsn.name}-${GIT_COMMIT}.tbz" "${DLD}/${PkgJsn.name}-latest.tbz"
+[ -L "${DLD}/${PkgJsn.name}-${PkgJsn.version}.tbz" ] && rm -f "${DLD}/${PkgJsn.name}-${GIT_COMMIT}.tbz"
+[ -e "${DLD}/${PkgJsn.name}-${PkgJsn.version}.tbz" ] || ln -s "${PkgJsn.name}-${GIT_COMMIT}.tbz" "${DLD}/${PkgJsn.name}-${PkgJsn.version}.tbz"
+'''
                 }
             }
         }

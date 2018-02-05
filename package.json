@@ -1,1 +1,4 @@
-{ 'version' : '0.1' }
+{
+  "name": "jenkinstest",
+  "version": "0.1",
+}
