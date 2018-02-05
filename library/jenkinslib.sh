@@ -49,6 +49,7 @@ function SourcePkgData {
     ant vars | grep '^\[echoproperties\] ' | sed 's%^\[echoproperties\] \(.*\)$%\1%g' | grep -v '^#' > "${PkgDataFile}"
     export PkgName="`grep '^package(abbrev)=' ${PkgDataFile} | cut -d '=' -f 2-`"
     export PkgVersion="`grep '^package(version)=' ${PkgDataFile} | cut -d '=' -f 2-`"
+    export PkgGawatiVersion="`grep '^package.gawati-version=' ${PkgDataFile} | cut -d '=' -f 2-`"
     }
 
   export PkgGitHash="${GIT_COMMIT:-`git log --format="%H" -1 2>/dev/null`}"
@@ -61,15 +62,22 @@ function SourcePkgData {
   }
 
 
-function PkgProvide {
+function ForceLink {
+  LINK="${1}"
+  TARGET="${2}"
+
+  [ -L "${LINK}" ] && rm -f "${LINK}"
+  [ -e "${LINK}" ] || ln -s "${TARGET}" "${LINK}"
+  }
+
+
+function PkgPack {
   zip -r - . > "${PkgRepo}/${PkgFileGit}.zip"
   tar -cvjf "${PkgRepo}/${PkgFileGit}.tbz" .
 
   for FTYP in zip tbz ; do
-    [ -L "${DLD}/${PkgFileLst}.${FTYP}" ] && rm -f "${DLD}/${PkgFileLst}.${FTYP}"
-    [ -e "${DLD}/${PkgFileLst}.${FTYP}" ] || ln -s "${REPO}/${PkgFileGit}.${FTYP}" "${DLD}/${PkgFileLst}.${FTYP}"
-    [ -L "${DLD}/${PkgFileVer}.${FTYP}" ] && rm -f "${DLD}/${PkgFileVer}.${FTYP}"
-    [ -e "${DLD}/${PkgFileVer}.${FTYP}" ] || ln -s "${REPO}/${PkgFileGit}.${FTYP}" "${DLD}/${PkgFileVer}.${FTYP}"
+    ForceLink "${DLD}/${PkgFileLst}.${FTYP}" "${REPO}/${PkgFileGit}.${FTYP}"
+    ForceLink "${DLD}/${PkgFileVer}.${FTYP}" "${REPO}/${PkgFileGit}.${FTYP}"
     done
   }
 

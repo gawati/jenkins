@@ -35,7 +35,7 @@ pipeline {
                     sh """
 . ./library/jenkinslib.sh
 cd library
-PkgProvide
+PkgPack
 """
                 }
             }
