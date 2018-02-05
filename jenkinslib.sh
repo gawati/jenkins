@@ -2,7 +2,7 @@
 #trap "exit 1" TERM
 
 DEBUG=2
-export PkgDataFile="JenkinsPkgDataFile.txt"
+export PkgDataFile="jenkinsPkgDataFile.txt"
 
 
 COLOR_OFF='\033[0m'
@@ -71,4 +71,6 @@ function PkgProvide {
     [ -e "${DLD}/${PkgFileVer}.${FTYP}" ] || ln -s "${PkgFileGit}.${FTYP}" "${DLD}/${PkgFileVer}.${FTYP}"
     done
   }
+
+SourcePkgData
 
