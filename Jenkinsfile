@@ -29,7 +29,6 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'echo "MYTEST: >${MYTEST}<"'
-                sh '(set -o posix; set)'
             }
         }
         stage('Upload') {
@@ -37,6 +36,7 @@ pipeline {
                 script {
                     def PkgJsn = readJSON file: 'package.json'
                     sh '''
+(set -o posix; set)
 tar -cvjf "${DLD}/${PkgJsn.name}-${GIT_COMMIT}.tbz" .
 [ -L "${DLD}/${PkgJsn.name}-latest.tbz" ] && rm -f "${DLD}/${PkgJsn.name}-latest.tbz"
 [ -e "${DLD}/${PkgJsn.name}-latest.tbz" ] || ln -s "${PkgJsn.name}-${GIT_COMMIT}.tbz" "${DLD}/${PkgJsn.name}-latest.tbz"
