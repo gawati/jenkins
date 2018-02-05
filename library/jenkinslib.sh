@@ -75,7 +75,6 @@ function PkgProvide {
 
 
 MYPID=$$
-STAMP="`timestamp`"
 REPO="repo"
 
 DLD="${DLD:-/tmp}"
