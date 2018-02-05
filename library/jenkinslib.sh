@@ -35,7 +35,7 @@ function vardebug {
   }
 
 
-function SourcePkgData {
+function PkgSourceData {
   [ -f 'package.json' ] && {
     message 4 "Reading package.json" 2
     npm --loglevel silent run vars > "${PkgDataFile}"
@@ -93,8 +93,8 @@ export PkgRepo="${DLD}/${REPO}"
 [ -e "${PkgRepo}" ] || mkdir -p "${PkgRepo}"
 [ -d "${PkgRepo}" ] || bail_out ">${PkgRepo}< not a folder."
 
-SourcePkgData
+PkgSourceData
 
-message 4 "To reread package information into environment run: SourcePkgData" 1
-message 4 "To write zip/tarball of cwd into ${DLD} run: PkgProvide" 1
+message 4 "To reread package information into environment run: PkgSourceData" 1
+message 4 "To write zip/tarball of cwd into ${DLD} run: PkgPack" 1
 
