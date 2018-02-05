@@ -3,7 +3,7 @@ pipeline {
 
     environment { 
         // CI="false"
-        DLD="/tmp"
+        DLD="/var/www/html/dl.gawati.org/dev"
     } 
 
 //  define {
