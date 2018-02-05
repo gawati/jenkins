@@ -1,5 +1,5 @@
 #!/bin/bash
-#trap "exit 1" TERM
+trap "exit 1" TERM
 
 DEBUG=2
 export PkgDataFile="jenkinsPkgDataFile.txt"
@@ -41,6 +41,7 @@ function SourcePkgData {
     npm --loglevel silent run vars > "${PkgDataFile}"
     export PkgName="`grep '^npm_package_name=' ${PkgDataFile} | cut -d '=' -f 2-`"
     export PkgVersion="`grep '^npm_package_version=' ${PkgDataFile} | cut -d '=' -f 2-`"
+    export PkgGawatiVersion="`grep '^npm_package_gawati_version=' ${PkgDataFile} | cut -d '=' -f 2-`"
     }
 
   [ -f 'build.xml' ] && {
@@ -61,18 +62,30 @@ function SourcePkgData {
 
 
 function PkgProvide {
-  zip -r - . > "$DLD/${PkgFileGit}.zip"
-  tar -cvjf "${DLD}/${PkgFileGit}.tbz" .
+  zip -r - . > "${PkgRepo}/${PkgFileGit}.zip"
+  tar -cvjf "${PkgRepo}/${PkgFileGit}.tbz" .
 
   for FTYP in zip tbz ; do
     [ -L "${DLD}/${PkgFileLst}.${FTYP}" ] && rm -f "${DLD}/${PkgFileLst}.${FTYP}"
-    [ -e "${DLD}/${PkgFileLst}.${FTYP}" ] || ln -s "${PkgFileGit}.${FTYP}" "${DLD}/${PkgFileLst}.${FTYP}"
+    [ -e "${DLD}/${PkgFileLst}.${FTYP}" ] || ln -s "${REPO}/${PkgFileGit}.${FTYP}" "${DLD}/${PkgFileLst}.${FTYP}"
     [ -L "${DLD}/${PkgFileVer}.${FTYP}" ] && rm -f "${DLD}/${PkgFileVer}.${FTYP}"
-    [ -e "${DLD}/${PkgFileVer}.${FTYP}" ] || ln -s "${PkgFileGit}.${FTYP}" "${DLD}/${PkgFileVer}.${FTYP}"
+    [ -e "${DLD}/${PkgFileVer}.${FTYP}" ] || ln -s "${REPO}/${PkgFileGit}.${FTYP}" "${DLD}/${PkgFileVer}.${FTYP}"
     done
   }
 
-export DLD="${DLD:-/tmp}"
+
+MYPID=$$
+STAMP="`timestamp`"
+REPO="repo"
+
+DLD="${DLD:-/tmp}"
+[ -e "${DLD}" ] || bail_out "Package folder >${DLD}< does not exist."
+[ -d "${DLD}" ] || bail_out ">${DLD}< not a folder."
+
+export PkgRepo="${DLD}/${REPO}"
+[ -e "${PkgRepo}" ] || mkdir -p "${PkgRepo}"
+[ -d "${PkgRepo}" ] || bail_out ">${PkgRepo}< not a folder."
+
 SourcePkgData
 
 message 4 "To reread package information into environment run: SourcePkgData" 1
