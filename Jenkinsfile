@@ -3,7 +3,7 @@ pipeline {
 
     environment { 
         // CI="false"
-        DLD="/var/www/html/dl.gawati.org/dev"
+        DLD="/tmp"
         PKF="jenkinstest"
     } 
 
@@ -36,13 +36,15 @@ pipeline {
         stage('Upload') {
             steps {
                 script {
-                    // def packageFile = readJSON file: 'package.json'
-                    sh "cd build ; tar -cvjf $DLD/$PKF-${GIT_COMMIT}.tbz ."
-                    sh "cd build ; zip -r - . > $DLD/$PKF-${GIT_COMMIT}.zip"
+                    def packageFile = readJSON file: 'package.json'
+                    sh "tar -cvjf $DLD/$PKF-${GIT_COMMIT}.tbz ."
+                    sh "[ -L $DLD/$PKF-latest.tbz ] && rm -f $DLD/$PKF-latest.tbz ; exit 0"
+                    sh "[ -e $DLD/$PKF-latest.tbz ] || ln -s $PKF-${packageFile.version}.tbz $DLD/$PKF-latest.tbz"
+                    sh "[ -L $DLD/$PKF-${packageFile.version}.tbz ] && rm -f $DLD/$PKF-${GIT_COMMIT}.tbz ; exit 0"
+                    sh "[ -e $DLD/$PKF-${packageFile.version}.tbz ] || ln -s $PKF-${GIT_COMMIT}.tbz $DLD/$PKF-${packageFile.version}.tbz"
+                    //sh "cd build ; zip -r - . > $DLD/$PKF-${GIT_COMMIT}.zip"
                     //sh "[ -L $DLD/$PKF-latest.zip ] && rm -f $DLD/$PKF-latest.zip ; exit 0"
                     //sh "[ -e $DLD/$PKF-latest.zip ] || ln -s $PKF-${packageFile.version}.zip $DLD/$PKF-latest.zip"
-                    //sh "[ -L $DLD/$PKF-latest.tbz ] && rm -f $DLD/$PKF-latest.tbz ; exit 0"
-                    //sh "[ -e $DLD/$PKF-latest.tbz ] || ln -s $PKF-${packageFile.version}.tbz $DLD/$PKF-latest.tbz"
                 }
             }
         }
