@@ -2,7 +2,7 @@
 #trap "exit 1" TERM
 
 DEBUG=2
-export PkgDataFile="JenkinsPkgDataFile.txt"
+export PkgDataFile="jenkinsPkgDataFile.txt"
 
 
 COLOR_OFF='\033[0m'
