@@ -75,7 +75,7 @@ function ForceLink {
 
 function PkgPack {
   zip -r - . > "${PkgRepo}/${PkgFileGit}.zip"
-  tar -cvjf "${PkgRepo}/${PkgFileGit}.tbz" .
+  tar -cvjf "${PkgRepo}/${PkgFileGit}.tbz" ./*
 
   for FTYP in zip tbz ; do
     ForceLink "${DLD}/${PkgFileLst}.${FTYP}" "${REPO}/${PkgFileGit}.${FTYP}"
