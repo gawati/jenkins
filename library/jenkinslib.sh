@@ -15,7 +15,7 @@ COLOR_4='\033[0;96m'
 
 function message {
   [ "$#" -gt 2 ] && {
-    [ "${3}" -lt "${DEBUG}" ] && return 0
+    [ "${3}" -gt "${DEBUG}" ] && return 0
     }
   COLOR_ON="`eval echo \$\{COLOR_${1}\}`"
   echo -e "${COLOR_ON}${2}${COLOR_OFF}"
@@ -72,5 +72,9 @@ function PkgProvide {
     done
   }
 
+export DLD="${DLD:-/tmp}"
 SourcePkgData
+
+message 4 "To reread package information into environment run: SourcePkgData" 1
+message 4 "To write zip/tarball of cwd into ${DLD} run: PkgProvide" 1
 
