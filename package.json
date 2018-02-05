@@ -1,5 +1,5 @@
 {
-  "name": "jenkinstest",
+  "name": "jenkinslib",
   "version": "0.0.1",
   "scripts": {
     "vars": "env | grep npm_package_ | grep -v npm_lifecycle_script"
