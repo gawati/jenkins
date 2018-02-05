@@ -33,8 +33,8 @@ pipeline {
             steps {
                 script {
                     sh """
+. ./library/jenkinslib.sh
 cd library
-. ./jenkinslib.sh
 PkgProvide
 """
                 }
