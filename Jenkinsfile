@@ -26,7 +26,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh '(set -o posix; set)'
+                sh '#(set -o posix; set)'
             }
         }
         stage('Upload') {
