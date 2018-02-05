@@ -17,31 +17,25 @@ pipeline {
         stage('Prerun Diag') {
             steps {
                 sh 'pwd'
-                sh 'ls -la'
-                sh '(set -o posix; set)'
             }
         }
         stage('Setup') {
             steps {
-                sh 'echo MYTEST=\\\"Preload through shell environment.\\\" >.profile'
+                sh 'ls -la'
             }
         }
         stage('Build') {
             steps {
-                sh 'echo "MYTEST: >${MYTEST}<"'
+                sh '(set -o posix; set)'
             }
         }
         stage('Upload') {
             steps {
                 script {
-                    def PkgJsn = readJSON file: 'package.json'
                     sh """
-(set -o posix; set)
-tar -cvjf "${DLD}/${PkgJsn.name}-${GIT_COMMIT}.tbz" .
-[ -L "${DLD}/${PkgJsn.name}-latest.tbz" ] && rm -f "${DLD}/${PkgJsn.name}-latest.tbz"
-[ -e "${DLD}/${PkgJsn.name}-latest.tbz" ] || ln -s "${PkgJsn.name}-${GIT_COMMIT}.tbz" "${DLD}/${PkgJsn.name}-latest.tbz"
-[ -L "${DLD}/${PkgJsn.name}-${PkgJsn.version}.tbz" ] && rm -f "${DLD}/${PkgJsn.name}-${PkgJsn.version}.tbz"
-[ -e "${DLD}/${PkgJsn.name}-${PkgJsn.version}.tbz" ] || ln -s "${PkgJsn.name}-${GIT_COMMIT}.tbz" "${DLD}/${PkgJsn.name}-${PkgJsn.version}.tbz"
+cd library
+. ./jenkinslib.sh
+PkgProvide
 """
                 }
             }
