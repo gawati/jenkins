@@ -37,7 +37,8 @@ function vardebug {
 
 function PkgSourceData {
   [ -f 'package.json' ] && {
-    message 4 "Reading package.json" 2
+    export PkgSource="package.json"
+
     npm --loglevel silent run vars > "${PkgDataFile}"
     export PkgName="`grep '^npm_package_name=' ${PkgDataFile} | cut -d '=' -f 2-`"
     export PkgVersion="`grep '^npm_package_version=' ${PkgDataFile} | cut -d '=' -f 2-`"
@@ -45,7 +46,8 @@ function PkgSourceData {
     }
 
   [ -f 'build.xml' ] && {
-    message 4 "Reading build.xml" 2
+    export PkgSource="build.xml"
+
     ant vars | grep '^\[echoproperties\] ' | sed 's%^\[echoproperties\] \(.*\)$%\1%g' | grep -v '^#' > "${PkgDataFile}"
     export PkgName="`grep '^package(abbrev)=' ${PkgDataFile} | cut -d '=' -f 2-`"
     export PkgVersion="`grep '^package(version)=' ${PkgDataFile} | cut -d '=' -f 2-`"
@@ -58,7 +60,7 @@ function PkgSourceData {
   export PkgFileVer="${PkgName}-${PkgVersion}"
   export PkgFileLst="${PkgName}-latest"
 
-  vardebug PkgName PkgVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst
+  vardebug PkgSource PkgName PkgVersion PkgGawatiVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst
   }
 
 
