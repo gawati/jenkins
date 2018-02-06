@@ -62,7 +62,7 @@ function PkgSourceData {
 
   export PkgBundleRepo="${DLD}/${PkgBundleVersion}"
 
-  vardebug PkgSource PkgName PkgVersion PkgBundleVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgBundleRepo
+  vardebug PkgSource PkgName PkgVersion PkgBundleVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBundleRepo
   }
 
 
@@ -88,7 +88,6 @@ function PkgLinkBundle {
   [ -d "${PkgBundleRepo}" ] || bail_out ">${PkgBundleRepo}< not a folder."
 
   for FTYP in ${PkgResources} ; do
-    ForceLink "${PkgBundleRepo}/${PkgFileLst}.${FTYP}" "../${REPO}/${PkgFileGit}.${FTYP}"
     ForceLink "${PkgBundleRepo}/${PkgFileVer}.${FTYP}" "../${REPO}/${PkgFileGit}.${FTYP}"
     done
   }
