@@ -36,7 +36,7 @@ pipeline {
 . ./library/jenkinslib.sh
 cd library
 PkgPack
-PkgLinkAll
+PkgLinkRoot
 """
                 }
             }
