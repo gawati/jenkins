@@ -1,2 +1,3 @@
-# jenkinstest
-For studying Jenkins 
+# jenkins
+
+Library for jenkins pipelines.
