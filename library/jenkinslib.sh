@@ -42,7 +42,7 @@ function PkgSourceData {
     npm --loglevel silent run vars > "${PkgDataFile}"
     export PkgName="`grep '^npm_package_name=' ${PkgDataFile} | cut -d '=' -f 2-`"
     export PkgVersion="`grep '^npm_package_version=' ${PkgDataFile} | cut -d '=' -f 2-`"
-    export PkgGawatiVersion="`grep '^npm_package_gawati_version=' ${PkgDataFile} | cut -d '=' -f 2-`"
+    export PkgBundleVersion="`grep '^npm_package_gawati_version=' ${PkgDataFile} | cut -d '=' -f 2-`"
     }
 
   [ -f 'build.xml' ] && {
@@ -51,7 +51,7 @@ function PkgSourceData {
     ant vars | grep '^\[echoproperties\] ' | sed 's%^\[echoproperties\] \(.*\)$%\1%g' | grep -v '^#' > "${PkgDataFile}"
     export PkgName="`grep '^package(abbrev)=' ${PkgDataFile} | cut -d '=' -f 2-`"
     export PkgVersion="`grep '^package(version)=' ${PkgDataFile} | cut -d '=' -f 2-`"
-    export PkgGawatiVersion="`grep '^package.gawati-version=' ${PkgDataFile} | cut -d '=' -f 2-`"
+    export PkgBundleVersion="`grep '^package.gawati-version=' ${PkgDataFile} | cut -d '=' -f 2-`"
     }
 
   export PkgGitHash="${GIT_COMMIT:-`git log --format="%H" -1 2>/dev/null`}"
@@ -60,7 +60,9 @@ function PkgSourceData {
   export PkgFileVer="${PkgName}-${PkgVersion}"
   export PkgFileLst="${PkgName}-latest"
 
-  vardebug PkgSource PkgName PkgVersion PkgGawatiVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst
+  export PkgBundleRepo="${DLD}/${PkgBundleVersion}"
+
+  vardebug PkgSource PkgName PkgVersion PkgBundleVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgBundleRepo
   }
 
 
@@ -73,14 +75,35 @@ function ForceLink {
   }
 
 
-function PkgPack {
-  zip -r - . > "${PkgRepo}/${PkgFileGit}.zip"
-  tar -cvjf "${PkgRepo}/${PkgFileGit}.tbz" ./*
-
-  for FTYP in zip tbz ; do
+function PkgLinkRoot {
+  for FTYP in ${PkgResources} ; do
     ForceLink "${DLD}/${PkgFileLst}.${FTYP}" "${REPO}/${PkgFileGit}.${FTYP}"
     ForceLink "${DLD}/${PkgFileVer}.${FTYP}" "${REPO}/${PkgFileGit}.${FTYP}"
     done
+  }
+
+
+function PkgLinkBundle {
+  [ -e "${PkgBundleRepo}" ] || mkdir -p "${PkgBundleRepo}"
+  [ -d "${PkgBundleRepo}" ] || bail_out ">${PkgBundleRepo}< not a folder."
+
+  for FTYP in ${PkgResources} ; do
+    ForceLink "${PkgBundleRepo}/${PkgFileLst}.${FTYP}" "../${REPO}/${PkgFileGit}.${FTYP}"
+    ForceLink "${PkgBundleRepo}/${PkgFileVer}.${FTYP}" "../${REPO}/${PkgFileGit}.${FTYP}"
+    done
+  }
+
+
+function PkgLinkAll {
+  PkgLinkRoot
+  PkgLinkBundle
+  }
+
+
+function PkgPack {
+  zip -r - . > "${PkgRepo}/${PkgFileGit}.zip"
+  tar -cvjf "${PkgRepo}/${PkgFileGit}.tbz" ./*
+  PkgResources="zip tbz"
   }
 
 
