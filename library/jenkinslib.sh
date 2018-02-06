@@ -2,6 +2,9 @@
 trap "exit 1" TERM
 
 DEBUG=2
+
+DLD="${DLD:-/tmp}"
+REPO="repo"
 export PkgDataFile="jenkinsPkgDataFile.txt"
 
 
@@ -60,6 +63,7 @@ function PkgSourceData {
   export PkgFileVer="${PkgName}-${PkgVersion}"
   export PkgFileLst="${PkgName}-latest"
 
+  export PkgRepo="${DLD}/${REPO}"
   export PkgBundleRepo="${DLD}/${PkgBundleVersion}"
 
   vardebug PkgSource PkgName PkgVersion PkgBundleVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBundleRepo
@@ -99,7 +103,17 @@ function PkgLinkAll {
   }
 
 
+PkgEnsureRepo {
+  [ -e "${DLD}" ] || bail_out "Package folder >${DLD}< does not exist."
+  [ -d "${DLD}" ] || bail_out ">${DLD}< not a folder."
+
+  [ -e "${PkgRepo}" ] || mkdir -p "${PkgRepo}"
+  [ -d "${PkgRepo}" ] || bail_out ">${PkgRepo}< not a folder."
+  }
+
+
 function PkgPack {
+  PkgEnsureRepo
   zip -r - . > "${PkgRepo}/${PkgFileGit}.zip"
   tar -cvjf "${PkgRepo}/${PkgFileGit}.tbz" ./*
   PkgResources="zip tbz"
@@ -107,15 +121,6 @@ function PkgPack {
 
 
 MYPID=$$
-REPO="repo"
-
-DLD="${DLD:-/tmp}"
-[ -e "${DLD}" ] || bail_out "Package folder >${DLD}< does not exist."
-[ -d "${DLD}" ] || bail_out ">${DLD}< not a folder."
-
-export PkgRepo="${DLD}/${REPO}"
-[ -e "${PkgRepo}" ] || mkdir -p "${PkgRepo}"
-[ -d "${PkgRepo}" ] || bail_out ">${PkgRepo}< not a folder."
 
 PkgSourceData
 
