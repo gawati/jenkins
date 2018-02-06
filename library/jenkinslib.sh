@@ -57,6 +57,8 @@ function PkgSourceData {
     export PkgBundleVersion="`grep '^package.gawati-version=' ${PkgDataFile} | cut -d '=' -f 2-`"
     }
 
+  export PkgName="${PKF:-${PkgName}}"
+
   export PkgGitHash="${GIT_COMMIT:-`git log --format="%H" -1 2>/dev/null`}"
 
   export PkgFileGit="${PkgName}-${PkgGitHash}"
