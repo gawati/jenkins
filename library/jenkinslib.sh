@@ -103,7 +103,7 @@ function PkgLinkAll {
   }
 
 
-PkgEnsureRepo {
+function PkgEnsureRepo {
   [ -e "${DLD}" ] || bail_out "Package folder >${DLD}< does not exist."
   [ -d "${DLD}" ] || bail_out ">${DLD}< not a folder."
 
