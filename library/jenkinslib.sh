@@ -58,7 +58,7 @@ function PkgSourceData {
     ant vars | grep '^\[echoproperties\] ' | sed 's%^\[echoproperties\] \(.*\)$%\1%g' | grep -v '^#' > "${PkgDataFile}"
     export PkgName="`grep '^package(abbrev)=' ${PkgDataFile} | cut -d '=' -f 2-`"
     export PkgVersion="`grep '^package(version)=' ${PkgDataFile} | cut -d '=' -f 2-`"
-    export PkgBundleVersion="`grep '^package.gawati-version=' ${PkgDataFile} | cut -d '=' -f 2-`"
+    export PkgBundleVersion="`grep '^project.gawati-version=' ${PkgDataFile} | cut -d '=' -f 2-`"
     }
 
   export PkgName="${PKF:-${PkgName}}"
