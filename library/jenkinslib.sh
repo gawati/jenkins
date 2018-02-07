@@ -133,6 +133,13 @@ function PkgPack {
   }
 
 
+function PkgXar {
+  PkgEnsureRepo
+  zip -r - . > "${PkgRepo}/${PkgFileGit}.xar"
+  PkgResources="xar"
+  }
+
+
 MYPID=$$
 
 PkgSourceData
