@@ -4,9 +4,12 @@ trap "exit 1" TERM
 DEBUG=2
 
 DLD="${DLD:-/tmp}"
+BRANCH="${JOB_BASE_NAME:-`git branch | cut -d ' ' -f 2`}"
+
 REPO="repo"
 export PkgDataFile="jenkinsPkgDataFile.txt"
 
+declare -A Branch2Folder=( ["master"]="dev" )
 
 COLOR_OFF='\033[0m'
 COLOR_0='\033[0m'
@@ -66,9 +69,11 @@ function PkgSourceData {
   export PkgFileLst="${PkgName}-latest"
 
   export PkgRepo="${DLD}/${REPO}"
-  export PkgBundleRepo="${DLD}/${PkgBundleVersion}"
+  export PkgBranch="${DLD}/${Branch2Folder[${BRANCH}]}"
+  export PkgArchive="${PkgBranch}/archive"
+  export PkgBundleRepo="${PkgBranch}/${PkgBundleVersion}"
 
-  vardebug PkgSource PkgName PkgVersion PkgBundleVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBundleRepo
+  vardebug PkgSource PkgName PkgVersion PkgBundleVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBranch PkgArchive PkgBundleRepo
   }
 
 
@@ -82,9 +87,12 @@ function ForceLink {
 
 
 function PkgLinkRoot {
+  [ -e "${PkgBranch}" ] || mkdir -p "${PkgBranch}"
+  [ -d "${PkgBranch}" ] || bail_out ">${PkgBranch}< not a folder."
+
   for FTYP in ${PkgResources} ; do
-    ForceLink "${DLD}/${PkgFileLst}.${FTYP}" "${REPO}/${PkgFileGit}.${FTYP}"
-    ForceLink "${DLD}/${PkgFileVer}.${FTYP}" "${REPO}/${PkgFileGit}.${FTYP}"
+    ForceLink "${PkgBranch}/${PkgFileLst}.${FTYP}" "../${REPO}/${PkgFileGit}.${FTYP}"
+    ForceLink "${PkgBranch}/${PkgFileVer}.${FTYP}" "../${REPO}/${PkgFileGit}.${FTYP}"
     done
   }
 
@@ -94,7 +102,7 @@ function PkgLinkBundle {
   [ -d "${PkgBundleRepo}" ] || bail_out ">${PkgBundleRepo}< not a folder."
 
   for FTYP in ${PkgResources} ; do
-    ForceLink "${PkgBundleRepo}/${PkgFileVer}.${FTYP}" "../${REPO}/${PkgFileGit}.${FTYP}"
+    ForceLink "${PkgBundleRepo}/${PkgFileVer}.${FTYP}" "../../${REPO}/${PkgFileGit}.${FTYP}"
     done
   }
 
@@ -109,8 +117,10 @@ function PkgEnsureRepo {
   [ -e "${DLD}" ] || bail_out "Package folder >${DLD}< does not exist."
   [ -d "${DLD}" ] || bail_out ">${DLD}< not a folder."
 
-  [ -e "${PkgRepo}" ] || mkdir -p "${PkgRepo}"
-  [ -d "${PkgRepo}" ] || bail_out ">${PkgRepo}< not a folder."
+  for FOLDER in "${PkgRepo}" "${PkgBranch}" "${PkgArchive}" ; do
+    [ -e "${PkgRepo}" ] || mkdir -p "${PkgRepo}"
+    [ -d "${PkgRepo}" ] || bail_out ">${PkgRepo}< not a folder."
+    done
   }
 
 
@@ -127,5 +137,5 @@ MYPID=$$
 PkgSourceData
 
 message 4 "To reread package information into environment run: PkgSourceData" 1
-message 4 "To write zip/tarball of cwd into ${DLD} run: PkgPack" 1
+message 4 "To write zip/tarball of cwd into ${PkgBranch} run: PkgPack" 1
 
