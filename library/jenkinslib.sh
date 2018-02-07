@@ -3,6 +3,7 @@ trap "exit 1" TERM
 
 DEBUG=2
 
+[ "${JENKINS_HOME}" != "" ] && DLD="/var/www/html/dl.gawati.org"
 DLD="${DLD:-/tmp}"
 BRANCH="${JOB_BASE_NAME:-`git branch | cut -d ' ' -f 2`}"
 
