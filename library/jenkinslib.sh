@@ -8,6 +8,7 @@ DLD="${DLD:-/tmp}"
 BRANCH="${JOB_BASE_NAME:-`git branch | cut -d ' ' -f 2`}"
 
 REPO="repo"
+ARCV="archive"
 export PkgDataFile="jenkinsPkgDataFile.txt"
 
 declare -A Branch2Folder=( ["dev"]="dev" ["master"]="prod" )
@@ -71,7 +72,7 @@ function PkgSourceData {
 
   export PkgBranch="${DLD}/${Branch2Folder[${BRANCH}]}"
   export PkgRepo="${PkgBranch}/${REPO}"
-  export PkgArchive="${PkgBranch}/archive"
+  export PkgArchive="${PkgBranch}/${ARCV}"
   export PkgBundleRepo="${PkgBranch}/${PkgBundleVersion}"
 
   vardebug PkgSource PkgName PkgVersion PkgBundleVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBranch PkgArchive PkgBundleRepo
@@ -91,9 +92,12 @@ function PkgLinkRoot {
   [ -e "${PkgBranch}" ] || mkdir -p "${PkgBranch}"
   [ -d "${PkgBranch}" ] || bail_out ">${PkgBranch}< not a folder."
 
+  [ -e "${PkgArchive}" ] || mkdir -p "${PkgArchive}"
+  [ -d "${PkgArchive}" ] || bail_out ">${PkgArchive}< not a folder."
+
   for FTYP in ${PkgResources} ; do
     ForceLink "${PkgBranch}/${PkgFileLst}.${FTYP}" "${REPO}/${PkgFileGit}.${FTYP}"
-    ForceLink "${PkgBranch}/${PkgFileVer}.${FTYP}" "${REPO}/${PkgFileGit}.${FTYP}"
+    ForceLink "${PkgArchive}/${PkgFileVer}.${FTYP}" "../${REPO}/${PkgFileGit}.${FTYP}"
     done
   }
 
