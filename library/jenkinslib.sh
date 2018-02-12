@@ -69,8 +69,8 @@ function PkgSourceData {
   export PkgFileVer="${PkgName}-${PkgVersion}"
   export PkgFileLst="${PkgName}-latest"
 
-  export PkgRepo="${DLD}/${REPO}"
   export PkgBranch="${DLD}/${Branch2Folder[${BRANCH}]}"
+  export PkgRepo="${PkgBranch}/${REPO}"
   export PkgArchive="${PkgBranch}/archive"
   export PkgBundleRepo="${PkgBranch}/${PkgBundleVersion}"
 
@@ -92,8 +92,8 @@ function PkgLinkRoot {
   [ -d "${PkgBranch}" ] || bail_out ">${PkgBranch}< not a folder."
 
   for FTYP in ${PkgResources} ; do
-    ForceLink "${PkgBranch}/${PkgFileLst}.${FTYP}" "../${REPO}/${PkgFileGit}.${FTYP}"
-    ForceLink "${PkgBranch}/${PkgFileVer}.${FTYP}" "../${REPO}/${PkgFileGit}.${FTYP}"
+    ForceLink "${PkgBranch}/${PkgFileLst}.${FTYP}" "${REPO}/${PkgFileGit}.${FTYP}"
+    ForceLink "${PkgBranch}/${PkgFileVer}.${FTYP}" "${REPO}/${PkgFileGit}.${FTYP}"
     done
   }
 
@@ -103,7 +103,7 @@ function PkgLinkBundle {
   [ -d "${PkgBundleRepo}" ] || bail_out ">${PkgBundleRepo}< not a folder."
 
   for FTYP in ${PkgResources} ; do
-    ForceLink "${PkgBundleRepo}/${PkgFileVer}.${FTYP}" "../../${REPO}/${PkgFileGit}.${FTYP}"
+    ForceLink "${PkgBundleRepo}/${PkgFileVer}.${FTYP}" "../${REPO}/${PkgFileGit}.${FTYP}"
     done
   }
 
