@@ -10,7 +10,7 @@ BRANCH="${JOB_BASE_NAME:-`git branch | cut -d ' ' -f 2`}"
 REPO="repo"
 export PkgDataFile="jenkinsPkgDataFile.txt"
 
-declare -A Branch2Folder=( ["master"]="dev" )
+declare -A Branch2Folder=( ["dev"]="dev" ["master"]="prod" )
 
 COLOR_OFF='\033[0m'
 COLOR_0='\033[0m'
