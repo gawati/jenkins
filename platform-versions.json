@@ -2,6 +2,51 @@
  "name": "gawati",
  "versions": [
     {
+        "version": "1.0.9",
+        "packages" : [
+             {
+                "name": "portal-ui",
+                "version": "2.0.16",
+                "git-hash": "170d910",
+                "url": "https://github.com/gawati/gawati-portal-ui/"
+             },
+             {
+                "name": "gawati-data",
+                "version": "1.9",
+                "git-hash": "5bce37b", 
+                "url": "https://github.com/gawati/gawati-data/"
+             },
+             {
+                "name": "portal-server",
+                "version": "1.0.8",
+                "git-hash": "8d490f9",
+                "url": "https://github.com/gawati/gawati-portal-server/"
+             },
+             {
+                "name": "gw-data",
+                "version": "1.5",
+                "git-hash": "b3e23d0",
+                "url": "https://github.com/gawati/gawati-data-xml/"
+             },
+             {
+                 "name": "gawati-auth",
+                 "version": "unrel"
+             },
+             {
+                 "name": "gawati-client",
+                 "version": "unrel"
+             },
+             {
+                 "name": "gawati-client-server",
+                 "version": "unrel"
+             },
+             {
+                 "name": "gawati-client-data",
+                 "version": "unrel"
+             }
+         ]
+     },
+    {
        "version": "1.0.8",
        "packages" : [
             {
