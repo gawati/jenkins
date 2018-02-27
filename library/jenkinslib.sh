@@ -117,8 +117,8 @@ function PkgEnsureRepo {
   [ -d "${DLD}" ] || bail_out ">${DLD}< not a folder."
 
   for FOLDER in "${PkgBranch}" "${PkgRepo}" "${PkgArchive}" ; do
-    [ -e "${PkgRepo}" ] || mkdir -p "${PkgRepo}"
-    [ -d "${PkgRepo}" ] || bail_out ">${PkgRepo}< not a folder."
+    [ -e "${FOLDER}" ] || mkdir -p "${FOLDER}"
+    [ -d "${FOLDER}" ] || bail_out ">${FOLDER}< not a folder."
     done
   }
 
