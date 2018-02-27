@@ -43,6 +43,29 @@ function vardebug {
   }
 
 
+function PkgDerivedData {
+  export PkgFileGit="${PkgName}-${PkgGitHash}"
+  export PkgFileVer="${PkgName}-${PkgVersion}"
+  export PkgFileLst="${PkgName}-latest"
+
+  export PkgBranch="${DLD}/${Branch2Folder[${BRANCH}]}"
+  export PkgRepo="${PkgBranch}/${REPO}"
+  export PkgArchive="${PkgBranch}/${ARCV}"
+  export PkgBundleRepo="${PkgBranch}/${PkgBundleVersion}"
+
+  vardebug BRANCH PkgSource PkgName PkgVersion PkgBundleVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBranch PkgArchive PkgBundleRepo
+  }
+
+
+function PkgSourceFile {
+  DataFile="${1}"
+  [ -f "${DataFile}" ] || bail_out ">${DataFile}< is not a file."
+  source "${DataFile}" || bail_out "Failed sourcing >${DataFile}< from >`pwd`<."
+
+  PkgDerivedData
+  }
+
+
 function PkgSourceData {
   [ -f 'package.json' ] && {
     export PkgSource="package.json"
@@ -63,19 +86,30 @@ function PkgSourceData {
     }
 
   export PkgName="${PKF:-${PkgName}}"
-
   export PkgGitHash="${GIT_COMMIT:-`git log --format="%H" -1 2>/dev/null`}"
 
-  export PkgFileGit="${PkgName}-${PkgGitHash}"
-  export PkgFileVer="${PkgName}-${PkgVersion}"
-  export PkgFileLst="${PkgName}-latest"
+  PkgDerivedData
+  }
 
-  export PkgBranch="${DLD}/${Branch2Folder[${BRANCH}]}"
-  export PkgRepo="${PkgBranch}/${REPO}"
-  export PkgArchive="${PkgBranch}/${ARCV}"
-  #export PkgBundleRepo="${PkgBranch}/${PkgBundleVersion}"
 
-  vardebug PkgSource PkgName PkgVersion PkgBundleVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBranch PkgArchive PkgBundleRepo
+function PkgParseVersionFolder {
+  VersionFolder="${1}"
+  [ -d "${VersionFolder}" ] || bail_out ">${VersionFolder}< is not a folder."
+
+  pushd "${VersionFolder}"
+  for BRANCH in `ls -1 -d */ | cut -d '/' -f1` ; do
+    pushd "${BRANCH}"
+    for PkgBundleVersion in `ls -1 -d */ | cut -d '/' -f1` ; do
+      pushd "${PkgBundleVersion}"
+      for FILE in `ls -p | grep -v /` ; do
+        source "${FILE}"
+        PkgDerivedData
+        done
+      popd
+      done
+    popd
+    done
+  popd
   }
 
 
