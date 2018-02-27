@@ -50,7 +50,7 @@ function PkgSourceData {
     npm --loglevel silent run vars > "${PkgDataFile}"
     export PkgName="`grep '^npm_package_name=' ${PkgDataFile} | cut -d '=' -f 2-`"
     export PkgVersion="`grep '^npm_package_version=' ${PkgDataFile} | cut -d '=' -f 2-`"
-    export PkgBundleVersion="`grep '^npm_package_gawati_version=' ${PkgDataFile} | cut -d '=' -f 2-`"
+    #export PkgBundleVersion="`grep '^npm_package_gawati_version=' ${PkgDataFile} | cut -d '=' -f 2-`"
     }
 
   [ -f 'build.xml' ] && {
@@ -59,7 +59,7 @@ function PkgSourceData {
     ant vars | grep '^\[echoproperties\] ' | sed 's%^\[echoproperties\] \(.*\)$%\1%g' | grep -v '^#' > "${PkgDataFile}"
     export PkgName="`grep '^package(abbrev)=' ${PkgDataFile} | cut -d '=' -f 2-`"
     export PkgVersion="`grep '^package(version)=' ${PkgDataFile} | cut -d '=' -f 2-`"
-    export PkgBundleVersion="`grep '^project.gawati-version=' ${PkgDataFile} | cut -d '=' -f 2-`"
+    #export PkgBundleVersion="`grep '^project.gawati-version=' ${PkgDataFile} | cut -d '=' -f 2-`"
     }
 
   export PkgName="${PKF:-${PkgName}}"
@@ -73,7 +73,7 @@ function PkgSourceData {
   export PkgBranch="${DLD}/${Branch2Folder[${BRANCH}]}"
   export PkgRepo="${PkgBranch}/${REPO}"
   export PkgArchive="${PkgBranch}/${ARCV}"
-  export PkgBundleRepo="${PkgBranch}/${PkgBundleVersion}"
+  #export PkgBundleRepo="${PkgBranch}/${PkgBundleVersion}"
 
   vardebug PkgSource PkgName PkgVersion PkgBundleVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBranch PkgArchive PkgBundleRepo
   }
@@ -88,13 +88,7 @@ function ForceLink {
   }
 
 
-function PkgLinkRoot {
-  [ -e "${PkgBranch}" ] || mkdir -p "${PkgBranch}"
-  [ -d "${PkgBranch}" ] || bail_out ">${PkgBranch}< not a folder."
-
-  [ -e "${PkgArchive}" ] || mkdir -p "${PkgArchive}"
-  [ -d "${PkgArchive}" ] || bail_out ">${PkgArchive}< not a folder."
-
+function PkgLinkLatest {
   for FTYP in ${PkgResources} ; do
     ForceLink "${PkgBranch}/${PkgFileLst}.${FTYP}" "${REPO}/${PkgFileGit}.${FTYP}"
     ForceLink "${PkgArchive}/${PkgFileVer}.${FTYP}" "../${REPO}/${PkgFileGit}.${FTYP}"
@@ -113,7 +107,7 @@ function PkgLinkBundle {
 
 
 function PkgLinkAll {
-  PkgLinkRoot
+  PkgLinkLatest
   PkgLinkBundle
   }
 
@@ -122,7 +116,7 @@ function PkgEnsureRepo {
   [ -e "${DLD}" ] || bail_out "Package folder >${DLD}< does not exist."
   [ -d "${DLD}" ] || bail_out ">${DLD}< not a folder."
 
-  for FOLDER in "${PkgRepo}" "${PkgBranch}" "${PkgArchive}" ; do
+  for FOLDER in "${PkgBranch}" "${PkgRepo}" "${PkgArchive}" ; do
     [ -e "${PkgRepo}" ] || mkdir -p "${PkgRepo}"
     [ -d "${PkgRepo}" ] || bail_out ">${PkgRepo}< not a folder."
     done
