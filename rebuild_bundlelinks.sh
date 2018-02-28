@@ -1,5 +1,5 @@
 #!/bin/bash
 
-source /root/github/jenkins/library/jenkinslib.sh
+source library/jenkinslib.sh
 PkgParseVersionFolder versions
 
