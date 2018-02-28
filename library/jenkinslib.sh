@@ -53,7 +53,7 @@ function PkgDerivedData {
   export PkgArchive="${PkgBranch}/${ARCV}"
   export PkgBundleRepo="${PkgBranch}/${PkgBundleVersion}"
 
-  vardebug BRANCH PkgSource PkgName PkgVersion PkgBundleVersion PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBranch PkgArchive PkgBundleRepo
+  vardebug BRANCH PkgSource PkgName PkgVersion PkgBundleVersion PkgGitURL PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBranch PkgArchive PkgBundleRepo
   }
 
 
@@ -96,20 +96,26 @@ function PkgParseVersionFolder {
   VersionFolder="${1}"
   [ -d "${VersionFolder}" ] || bail_out ">${VersionFolder}< is not a folder."
 
-  pushd "${VersionFolder}"
-  for BRANCH in `ls -1 -d */ | cut -d '/' -f1` ; do
-    pushd "${BRANCH}"
-    for PkgBundleVersion in `ls -1 -d */ | cut -d '/' -f1` ; do
-      pushd "${PkgBundleVersion}"
-      for FILE in `ls -p | grep -v /` ; do
+  echo "-----"
+  pushd "${VersionFolder}" >/dev/null
+  VersionFolder="`pwd`"
+  for BRANCH in `ls -1 -d */ 2>/dev/null | cut -d '/' -f1` ; do
+    pushd "${BRANCH}" >/dev/null
+    for PkgBundleVersion in `ls -1 -d */ 2>/dev/null | cut -d '/' -f1` ; do
+      pushd "${PkgBundleVersion}" >/dev/null
+      for FILE in `ls -p 2>/dev/null | grep -v /` ; do
+        [ -f "${VersionFolder}/${FILE}" ] && source "${VersionFolder}/${FILE}"
+        [ -f "${VersionFolder}/${BRANCH}/${FILE}" ] && source "${VersionFolder}/${BRANCH}/${FILE}"
         source "${FILE}"
         PkgDerivedData
+        PkgLinkBundle
+        echo "-----"
         done
-      popd
+      popd >/dev/null
       done
-    popd
+    popd >/dev/null
     done
-  popd
+  popd >/dev/null
   }
 
 
