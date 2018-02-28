@@ -30,6 +30,7 @@ pipeline {
 cd library
 PkgPack
 PkgLinkLatest
+./rebuild_bundlelinks.sh
 """
                 }
             }
