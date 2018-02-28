@@ -27,10 +27,11 @@ pipeline {
                 script {
                     sh """
 . ./library/jenkinslib.sh
-cd library
+pushd library >/dev/null
 PkgPack
 PkgLinkLatest
-../rebuild_bundlelinks.sh
+popd >/dev/null
+./rebuild_bundlelinks.sh
 """
                 }
             }
