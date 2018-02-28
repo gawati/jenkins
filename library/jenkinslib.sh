@@ -5,13 +5,14 @@ DEBUG=2
 
 [ "${JENKINS_HOME}" != "" ] && DLD="/var/www/html/dl.gawati.org"
 DLD="${DLD:-/tmp}"
-BRANCH="${JOB_BASE_NAME:-`git branch | cut -d ' ' -f 2`}"
-
-REPO="repo"
-ARCV="archive"
-export PkgDataFile="jenkinsPkgDataFile.txt"
 
 declare -A Branch2Folder=( ["dev"]="dev" ["master"]="prod" )
+
+
+export PkgDataFile="jenkinsPkgDataFile.txt"
+BRANCH="${JOB_BASE_NAME:-`git branch | cut -d ' ' -f 2`}"
+REPO="repo"
+ARCV="archive"
 
 COLOR_OFF='\033[0m'
 COLOR_0='\033[0m'
