@@ -1,3 +1,4 @@
 PkgName="gw-data"
-PkgGitURL="https://github.com/gawati/gawati-data-xml.git"
+PkgFriendlyName="Gawati Data XML"
+PkgGitURL="https://github.com/gawati/gawati-data-xml"
 PkgResources="xar"

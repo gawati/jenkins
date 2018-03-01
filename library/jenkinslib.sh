@@ -3,8 +3,12 @@ trap "exit 1" TERM
 
 DEBUG=2
 
+TreeTableOptions='style="border-collapse: collapse; border: solid 1px black;"'
+TreeTableHeaderOptions='style="border: 1px solid black; text-align:center;"'
+TreeTableDataOptions='style="border: 1px solid black; text-align:center;"'
+
 [ "${JENKINS_HOME}" != "" ] && DLD="/var/www/html/dl.gawati.org"
-DLD="${DLD:-/tmp}"
+DLD="${DLD:-/tmp/pkg}"
 
 declare -A Branch2Folder=( ["dev"]="dev" ["master"]="prod" )
 
@@ -33,6 +37,7 @@ function message {
 
 function bail_out {
   message 3 "${2}"
+  #pause
   kill -s TERM ${MYPID}
   }
 
@@ -54,7 +59,7 @@ function PkgDerivedData {
   export PkgArchive="${PkgBranch}/${ARCV}"
   export PkgBundleRepo="${PkgBranch}/${PkgBundleVersion}"
 
-  vardebug BRANCH PkgSource PkgName PkgVersion PkgBundleVersion PkgGitURL PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBranch PkgArchive PkgBundleRepo
+  #vardebug BRANCH PkgSource PkgName PkgVersion PkgBundleVersion PkgGitURL PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBranch PkgArchive PkgBundleRepo
   }
 
 
@@ -93,11 +98,14 @@ function PkgSourceData {
   }
 
 
-function PkgParseVersionFolder {
+function TreeForAllInVersions {
   VersionFolder="${1}"
   [ -d "${VersionFolder}" ] || bail_out ">${VersionFolder}< is not a folder."
 
-  echo "-----"
+  VersionCallFunction="${2}"
+  [ "`type -t ${VersionCallFunction}`" = function ] || bail_out ">${VersionCallFunction}< is not a function."
+
+  #echo "-----"
   pushd "${VersionFolder}" >/dev/null
   VersionFolder="`pwd`"
   for BRANCH in `ls -1 -d */ 2>/dev/null | cut -d '/' -f1` ; do
@@ -109,14 +117,90 @@ function PkgParseVersionFolder {
         [ -f "${VersionFolder}/${BRANCH}/${FILE}" ] && source "${VersionFolder}/${BRANCH}/${FILE}"
         source "${FILE}"
         PkgDerivedData
-        PkgLinkBundle
-        echo "-----"
+        ${VersionCallFunction}
+        #echo "-----"
         done
       popd >/dev/null
       done
     popd >/dev/null
     done
   popd >/dev/null
+  }
+
+
+function TreeMakeBundleLinks {
+  VersionFolder="${1}"
+
+  TreeForAllInVersions "${VersionFolder}" PkgLinkBundle
+  }
+
+
+function TreeAddComponent {
+  TreeComponents+=" ${PkgName}"
+  }
+
+
+function TreeListComponents {
+  VersionFolder="${1}"
+
+  TreeComponents=""
+  TreeForAllInVersions "${VersionFolder}" TreeAddComponent
+  TreeComponents="`echo ${TreeComponents} | xargs -n1 | sort -u | xargs`"
+  #vardebug TreeComponents
+  }
+
+
+function TreeMakeComponentTableDataRow {
+  BundleChanged="n"
+  [ "${LastBRANCH}${LastPkgBundleVersion}" != "${BRANCH}${PkgBundleVersion}" ] && BundleChanged="y"
+
+  [ "${BundleChanged}" = "y" ] && {
+    TreeColumn=0
+    echo -n "${LastAppend}"
+    echo -n "${Branch2Folder[${BRANCH}]},${PkgBundleVersion}"
+    LastAppend=""
+    }
+  TreeColumn=$((TreeColumn+1))
+
+  #if current column matches package name echo "            <td ${TreeTableDataOptions}>${PkgVersion}</td>"
+  [ "${PkgName}" = "`echo ${TreeComponents} | cut -d ' ' -f ${TreeColumn}`" ] && echo -n ",${PkgVersion};${PkgGitHash}" || echo -n ",N/A"
+
+  [ "${BundleChanged}" = "y" ] && {
+    LastAppend=$'\n'
+    LastBRANCH="${BRANCH}"
+    LastPkgBundleVersion="${PkgBundleVersion}"
+    }
+  }
+
+
+function TreeMakeComponentTableData {
+  VersionFolder="${1}"
+
+  LastBRANCH=""
+  LastPkgBundleVersion=""
+  LastAppend=""
+  TreeForAllInVersions "${VersionFolder}" TreeMakeComponentTableDataRow
+  echo -n "${LastAppend}"
+  LastAppend=""
+  }
+
+
+function TreeMakeComponentsTable {
+  VersionFolder="${1}"
+
+  TreeListComponents "${VersionFolder}"
+
+  echo -n "Branch,Gawati Version"
+
+  for Component in ${TreeComponents} ; do
+    PkgFile="${VersionFolder}/${Component}"
+    [ -f "${PkgFile}" ] || bail_out ">${PkgFile}< not a file."
+    source "${PkgFile}"
+    echo -n ",${PkgFriendlyName};${PkgGitURL}"
+    done
+  echo
+
+  TreeMakeComponentTableData "${VersionFolder}"
   }
 
 
@@ -183,6 +267,6 @@ MYPID=$$
 
 PkgSourceData
 
-message 4 "To reread package information into environment run: PkgSourceData" 1
-message 4 "To write zip/tarball of cwd into ${PkgBranch} run: PkgPack" 1
+#message 4 "To reread package information into environment run: PkgSourceData" 1
+#message 4 "To write zip/tarball of cwd into ${PkgBranch} run: PkgPack" 1
 

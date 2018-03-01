@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #
 # Generates the version-compat.rst page for gawati-docs
 # USAGE: 

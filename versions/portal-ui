@@ -1,3 +1,4 @@
 PkgName="portal-ui"
-PkgGitURL="https://github.com/gawati/gawati-portal-ui.git"
+PkgFriendlyName="Portal UI"
+PkgGitURL="https://github.com/gawati/gawati-portal-ui"
 PkgResources="tbz zip"
