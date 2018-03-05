@@ -3,7 +3,7 @@
 # Generates the version-compat.rst page for gawati-docs
 # USAGE: 
 #   python ./platform-versions.py 
-# creates a version-compat.rst in the current folder
+# creates a version-compat.rst and version-info.rst in the current folder
 #
 import json
 import os
@@ -45,6 +45,24 @@ ROW_TEMPLATE = Template("""
             <td style="border: 1px solid black; text-align:center;">$gw_data</td>
         </tr>
     """)
+
+
+VERSION_INFO_HEADER_RST = Template("""
+**Current Version** 
+
+  * GAWATI $version
+
+    """)
+
+VERSION_INFO_ITEM_RST = Template("""
+    - `$PkgName <$PkgGitURL>`_ : `$PkgVersion <$PkgGitHashURL>`_
+    """)  
+
+VERSION_INFO_FOOTER_RST = """
+
+  See full :doc:`Version Compatibility Chart <./version-compat>`.
+    """
+
 
 def files(path):
     for file in os.listdir(path):
@@ -110,12 +128,32 @@ def generate_table(pkg_json):
         output_table.append(ROW_TEMPLATE.substitute(pkg_map))     
     return ''.join(output_table)
 
+def version_info_page(this_version):
+    output_page = []
+    output_page.append(VERSION_INFO_HEADER_RST.substitute({'version': this_version['version']}))
+    pkgs = this_version["packages"]
+    for pkg in pkgs:
+        output_page.append(VERSION_INFO_ITEM_RST.substitute({
+            'PkgName': pkg['PkgName'], 
+            'PkgGitURL': pkg['PkgGitURL'],
+            'PkgVersion': pkg['PkgVersion'],
+            'PkgGitHashURL': pkg["PkgGitURL"] + "/commit/" + pkg["PkgGitHash"]
+        }))
+    output_page.append(VERSION_INFO_FOOTER_RST)
+    return ''.join(output_page)
+
+pkg_versions = platform_versions("dev")
 
 
-pkg_versions_string = json.dumps(platform_versions("dev"))
+version_info = version_info_page(pkg_versions['versions'][0])
 
-pkg_versions = json.loads(pkg_versions_string)
+#pkg_versions_string = json.dumps(platform_versions("dev"))
+
+#pkg_versions = json.loads(pkg_versions_string)
 
 # process Unicode text
 with io.open('version-compat.rst','w',encoding='utf8') as f:
     f.write(DOC_TEMPLATE.substitute({"table": generate_table(pkg_versions)}))
+
+with io.open('version-info.rst', 'w', encoding='utf8') as f:
+    f.write(version_info)
