@@ -99,6 +99,7 @@ function PkgSourceData {
 
 
 function TreeForAllInVersions {
+  #echo "TreeForAllInVersions ${1} ${2}"
   VersionFolder="${1}"
   [ -d "${VersionFolder}" ] || bail_out ">${VersionFolder}< is not a folder."
 
@@ -108,11 +109,13 @@ function TreeForAllInVersions {
   #echo "-----"
   pushd "${VersionFolder}" >/dev/null
   VersionFolder="`pwd`"
+  #echo "Versionfolder ${VersionFolder}"
   for BRANCH in `ls -1 -d */ 2>/dev/null | cut -d '/' -f1` ; do
     pushd "${BRANCH}" >/dev/null
     for PkgBundleVersion in `ls -1 -d */ 2>/dev/null | cut -d '/' -f1` ; do
       pushd "${PkgBundleVersion}" >/dev/null
       for FILE in `ls -p 2>/dev/null | grep -v /` ; do
+        echo "${FILE}" | grep "^__" >/dev/null && continue
         [ -f "${VersionFolder}/${FILE}" ] && source "${VersionFolder}/${FILE}"
         [ -f "${VersionFolder}/${BRANCH}/${FILE}" ] && source "${VersionFolder}/${BRANCH}/${FILE}"
         source "${FILE}"
@@ -136,7 +139,8 @@ function TreeMakeBundleLinks {
 
 
 function TreeAddComponent {
-  TreeComponents+=" ${PkgName}"
+  #echo "TreeAddComponent ${PkgName}"
+  echo "${PkgName}" | grep "^__" >/dev/null || TreeComponents+=" ${PkgName}"
   }
 
 
@@ -151,6 +155,7 @@ function TreeListComponents {
 
 
 function TreeMakeComponentTableDataRow {
+  #echo "TreeMakeComponentTableDataRow"
   BundleChanged="n"
   [ "${LastBRANCH}${LastPkgBundleVersion}" != "${BRANCH}${PkgBundleVersion}" ] && BundleChanged="y"
 
@@ -176,6 +181,7 @@ function TreeMakeComponentTableDataRow {
 function TreeMakeComponentTableData {
   VersionFolder="${1}"
 
+  #echo "TreeMakeComponentTableData"
   LastBRANCH=""
   LastPkgBundleVersion=""
   LastAppend=""
@@ -193,7 +199,10 @@ function TreeMakeComponentsTable {
   echo -n "Branch,Gawati Version"
 
   for Component in ${TreeComponents} ; do
+    #echo
+    #echo "${Component}"
     PkgFile="${VersionFolder}/${Component}"
+    #echo "${PkgFile}"
     [ -f "${PkgFile}" ] || bail_out ">${PkgFile}< not a file."
     source "${PkgFile}"
     echo -n ",${PkgFriendlyName};${PkgGitURL}"
