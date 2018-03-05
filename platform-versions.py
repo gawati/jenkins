@@ -5,6 +5,8 @@
 #   python ./platform-versions.py > version-compat.rst
 #
 import json
+import os
+import sys
 from string import Template
 
 DOC_TEMPLATE = Template("""Version Compatibility Chart
@@ -28,10 +30,6 @@ HEADER_TEMPLATE = """
             <th style="border: 1px solid black; text-align:center;">Portal Server</th>
             <th style="border: 1px solid black; text-align:center;">Gawati Data</th>
             <th style="border: 1px solid black; text-align:center;">Gawati Data XML</th>
-            <th style="border: 1px solid black; text-align:center;">Gawati Auth</th>
-            <th style="border: 1px solid black; text-align:center;">Gawati Client</th>
-            <th style="border: 1px solid black; text-align:center;">Gawati Client Server</th>
-            <th style="border: 1px solid black; text-align:center;">Gawati Client Data</th>
         </tr>
     </thead>
     """
@@ -43,12 +41,51 @@ ROW_TEMPLATE = Template("""
             <td style="border: 1px solid black; text-align:center;">$portal_server</td>
             <td style="border: 1px solid black; text-align:center;">$gawati_data</td>
             <td style="border: 1px solid black; text-align:center;">$gw_data</td>
-            <td style="border: 1px solid black; text-align:center;">$gawati_auth</td>
-            <td style="border: 1px solid black; text-align:center;">$gawati_client</td>
-            <td style="border: 1px solid black; text-align:center;">$gawati_client_server</td>
-            <td style="border: 1px solid black; text-align:center;">$gawati_client_data</td>
         </tr>
     """)
+
+def files(path):
+    for file in os.listdir(path):
+        if (os.path.isfile(os.path.join(path, file))):
+            yield file
+
+def read_kv_file(fileName):
+    myvars = {}
+    with open(fileName) as kvfile:
+        for line in kvfile:
+            name, var = line.partition("=")[::2]
+            myvars[name.strip()] = var.strip().replace('"', '')
+    return myvars
+
+
+def gawati_packages():
+    return [file for file in files("versions")]
+
+def versions(vType):
+    return os.listdir(os.path.join("versions", vType))
+
+
+def platform_versions(packageMode): 
+    gwPackages = gawati_packages()
+    devVersions = versions(packageMode)
+    masterVersions = {"name": "gawati", "versions": []}
+    for devVersion in devVersions:
+        version = { "version" : devVersion, "packages": [] }
+        for gwPackage in gwPackages:
+            objPackage = read_kv_file(os.path.join("versions", gwPackage))
+            objPackageExtended = read_kv_file(
+                os.path.join(
+                    "versions", 
+                    packageMode, 
+                    devVersion, 
+                    objPackage["PkgName"]
+                )
+            )
+            objPackage.update(objPackageExtended)
+            version["packages"].append(objPackage)
+        masterVersions["versions"].append(version)
+    return masterVersions
+
 
 def generate_table(pkg_json):
     output_table = []
@@ -60,20 +97,24 @@ def generate_table(pkg_json):
         pkg_map = {}
         pkg_map["version"] = version
         for pkg in pkgs:
-            if pkg["version"] == "unrel":
-                pkg_map[pkg["name"].replace("-", "_")] = "N/A"
-            else:
-                pkg_tmpl = Template("""
-                    <a href="$pkg_url">$pkg_version</a>
-                    """)
-                pkg_url = {"pkg_url": pkg["url"] + "commit/" + pkg["git-hash"], "pkg_version": pkg["version"]}
-                pkg_map[pkg["name"].replace("-", "_")] = pkg_tmpl.substitute(pkg_url)
+            #if pkg["version"] == "unrel":
+            #    pkg_map[pkg["name"].replace("-", "_")] = "N/A"
+            #else:
+            pkg_tmpl = Template("""
+                <a href="$pkg_url">$pkg_version</a>
+                """)
+            pkg_url = {"pkg_url": pkg["PkgGitURL"] + "/commit/" + pkg["PkgGitHash"], "pkg_version": pkg["PkgVersion"]}
+            pkg_map[pkg["PkgName"].replace("-", "_")] = pkg_tmpl.substitute(pkg_url)
         output_table.append(ROW_TEMPLATE.substitute(pkg_map))     
     return ''.join(output_table)
 
 
-pkg_data = open("platform-versions.json").read()
 
-pkg_json = json.loads(pkg_data)
+pkg_versions_string = json.dumps(platform_versions("dev"))
 
-print(DOC_TEMPLATE.substitute({"table": generate_table(pkg_json)}))
+pkg_versions = json.loads(pkg_versions_string)
+
+print(DOC_TEMPLATE.substitute({"table": generate_table(pkg_versions)}))
+#sys.stdout.buffer.write(DOC_TEMPLATE.substitute({"table": generate_table(pkg_versions)}).encode('utf8'))
+
+
