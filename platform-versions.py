@@ -2,10 +2,12 @@
 #
 # Generates the version-compat.rst page for gawati-docs
 # USAGE: 
-#   python ./platform-versions.py > version-compat.rst
+#   python ./platform-versions.py 
+# creates a version-compat.rst in the current folder
 #
 import json
 import os
+import io
 import sys
 from string import Template
 
@@ -114,7 +116,6 @@ pkg_versions_string = json.dumps(platform_versions("dev"))
 
 pkg_versions = json.loads(pkg_versions_string)
 
-print(DOC_TEMPLATE.substitute({"table": generate_table(pkg_versions)}))
-#sys.stdout.buffer.write(DOC_TEMPLATE.substitute({"table": generate_table(pkg_versions)}).encode('utf8'))
-
-
+# process Unicode text
+with io.open('version-compat.rst','w',encoding='utf8') as f:
+    f.write(DOC_TEMPLATE.substitute({"table": generate_table(pkg_versions)}))
