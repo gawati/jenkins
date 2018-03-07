@@ -98,6 +98,24 @@ function PkgSourceData {
   }
 
 
+function TreeSourceVersion {
+  FILE="${1}"
+  [ -f "${FILE}" ] || bail_out "No file to source at >${FILE}<"
+
+  FOLDER="`pwd`/`dirname ${FILE}`"
+  pushd "${FOLDER}" >/dev/null
+
+  for SRCFILE in __default "${FILE}" ; do
+    for SRCDIR in '../..' '..' '.' ; do
+      [ -f "${SRCDIR}/${SRCFILE}" ] && source "${SRCDIR}/${SRCFILE}"
+      done
+    done
+
+  popd >/dev/null
+  PkgDerivedData
+  }
+
+
 function TreeForAllInVersions {
   #echo "TreeForAllInVersions ${1} ${2}"
   VersionFolder="${1}"
@@ -115,11 +133,9 @@ function TreeForAllInVersions {
     for PkgBundleVersion in `ls -1 -d */ 2>/dev/null | cut -d '/' -f1` ; do
       pushd "${PkgBundleVersion}" >/dev/null
       for FILE in `ls -p 2>/dev/null | grep -v /` ; do
+        [ -f "${FILE}" ] || continue
         echo "${FILE}" | grep "^__" >/dev/null && continue
-        [ -f "${VersionFolder}/${FILE}" ] && source "${VersionFolder}/${FILE}"
-        [ -f "${VersionFolder}/${BRANCH}/${FILE}" ] && source "${VersionFolder}/${BRANCH}/${FILE}"
-        source "${FILE}"
-        PkgDerivedData
+        TreeSourceVersion "${FILE}"
         ${VersionCallFunction}
         #echo "-----"
         done
@@ -164,13 +180,18 @@ function TreeMakeComponentTableDataRow {
     echo -n "${LastAppend}"
     echo -n "${Branch2Folder[${BRANCH}]},${PkgBundleVersion}"
     LastAppend=""
-    }
-  TreeColumn=$((TreeColumn+1))
 
-  #if current column matches package name echo "            <td ${TreeTableDataOptions}>${PkgVersion}</td>"
-  [ "${PkgName}" = "`echo ${TreeComponents} | cut -d ' ' -f ${TreeColumn}`" ] && echo -n ",${PkgVersion};${PkgGitHash}" || echo -n ",N/A"
+    for Component in ${TreeComponents} ; do
+      TreeColumn=$((TreeColumn+1))
+      [ -f "${Component}" ] || {
+        echo -n ",N/A"
+        continue
+        }
 
-  [ "${BundleChanged}" = "y" ] && {
+      TreeSourceVersion "${Component}"
+      echo -n ",${PkgVersion};${PkgGitHash}"
+      done
+
     LastAppend=$'\n'
     LastBRANCH="${BRANCH}"
     LastPkgBundleVersion="${PkgBundleVersion}"
@@ -196,7 +217,8 @@ function TreeMakeComponentsTable {
 
   TreeListComponents "${VersionFolder}"
 
-  echo -n "Branch,Gawati Version"
+  [ -f "${VersionFolder}/__default" ] && source "${VersionFolder}/__default"
+  echo -n "Branch,${PkgBundleFriendlyname};${PkgDlURLRoot}"
 
   for Component in ${TreeComponents} ; do
     #echo
@@ -204,6 +226,7 @@ function TreeMakeComponentsTable {
     PkgFile="${VersionFolder}/${Component}"
     #echo "${PkgFile}"
     [ -f "${PkgFile}" ] || bail_out ">${PkgFile}< not a file."
+    [ -f "${VersionFolder}/__default" ] && source "${VersionFolder}/__default"
     source "${PkgFile}"
     echo -n ",${PkgFriendlyName};${PkgGitURL}"
     done
