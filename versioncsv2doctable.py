@@ -100,7 +100,7 @@ for branch in PkgTable.keys():
       header=PkgList[i]
       #print item
       #print header
-      print ' '*indent*4 + td_in + item['PackageVersion'] +'</a>' + td_out
+      print ' '*indent*4 + td_in + item['PackageVersion'] + td_out
 
     print ' '*indent*3 + '</td>'
 
