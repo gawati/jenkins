@@ -52,7 +52,7 @@ ROW_TEMPLATE = Template("""
 VERSION_INFO_HEADER_RST = Template("""
 **Current Version** 
 
-  * GAWATI $version  <a href="$version_download">download link</a>, relesased on: $rel_date
+  * GAWATI $version  `download link <$version_download>`_ , released on: $rel_date
 
     """)
 
@@ -110,9 +110,16 @@ def version_sort_func(key):
 def version_pkg_bundle_rel_date(packageMode, devVersion):
     version_meta = read_kv_file(os.path.join("versions", packageMode, devVersion, "__default"))
     if (version_meta):
-        return version_meta['PkgBundleReleaseDate']
+        return format_rel_date(version_meta['PkgBundleReleaseDate'])
     else:
         return 'N/A'
+
+def format_rel_date(input_date):
+    # 14.03.2018
+    from datetime import datetime
+    dateObject = datetime.strptime(input_date, '%d.%m.%Y')
+    return datetime.strftime( dateObject, '%d %B %Y')
+
 
 def platform_versions(packageMode): 
     # packages  ['gawati-data', 'gw-data', 'portal-server', 'portal-ui']
