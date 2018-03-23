@@ -166,9 +166,9 @@ def generate_table(pkg_json):
             #    pkg_map[pkg["name"].replace("-", "_")] = "N/A"
             #else:
             pkg_tmpl = Template("""
-                <a href="$pkg_url">$pkg_version</a>
+                <a href="$pkg_url" title="github tree">$pkg_version</a> 
                 """)
-            pkg_url = {"pkg_url": pkg["PkgGitURL"] + "/commit/" + pkg["PkgGitHash"], "pkg_version": pkg["PkgVersion"]}
+            pkg_url = {"pkg_url": pkg["PkgGitURL"] + "/tree/" + pkg["PkgGitHash"], "pkg_version": pkg["PkgVersion"]}
             pkg_map[pkg["PkgName"].replace("-", "_")] = pkg_tmpl.substitute(pkg_url)
         output_table.append(ROW_TEMPLATE.substitute(pkg_map))     
     return ''.join(output_table)
@@ -189,7 +189,7 @@ def version_info_page(this_version):
             'PkgName': pkg['PkgName'], 
             'PkgGitURL': pkg['PkgGitURL'],
             'PkgVersion': pkg['PkgVersion'],
-            'PkgGitHashURL': pkg["PkgGitURL"] + "/commit/" + pkg["PkgGitHash"]
+            'PkgGitHashURL': pkg["PkgGitURL"] + "/tree/" + pkg["PkgGitHash"]
         }))
     output_page.append(VERSION_INFO_FOOTER_RST)
     return ''.join(output_page)
