@@ -288,7 +288,7 @@ function PkgEnsureRepo {
 
 function PkgPack {
   PkgEnsureRepo
-  zip -r - . > "${PkgRepo}/${PkgFileGit}.zip"
+  zip -9 -y -r - . > "${PkgRepo}/${PkgFileGit}.zip"
   tar --owner=0 --group=0 -cvjf "${PkgRepo}/${PkgFileGit}.tbz" .
   PkgResources="zip tbz"
   }
