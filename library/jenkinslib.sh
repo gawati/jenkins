@@ -109,6 +109,29 @@ function about {
   }
 
 
+function makebuild {
+  INCLUDES=''
+  EXCLUDES=''
+
+  [ -f 'buildinclude' ] && {
+    INCLUDES='--include-from buildinclude'
+    EXCLUDES='--exclude=*'
+    }
+
+  [ -f 'buildexclude' ] && {
+    EXCLUDES='--exclude-from buildexclude'
+    }
+
+  BASEEXCLUDES=''
+  for i in .git .gitignore Jenkinsfile jenkinslib jenkinsPkgDataFile.txt build buildinclude buildexclude ; do
+    BASEEXCLUDES+=" --exclude='${i}'"
+    done
+
+  [ -d 'build' ] || mkdir build
+  rsync -av . build/ ${BASEEXCLUDES} ${INCLUDES} ${EXCLUDES}
+  }
+
+
 function TreeSourceVersion {
   FILE="${1}"
   [ -f "${FILE}" ] || bail_out "No file to source at >${FILE}<"
