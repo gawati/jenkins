@@ -104,6 +104,11 @@ function PkgSourceData {
   }
 
 
+function about {
+  echo -n "package=${PkgName};version=${PkgVersion};date=`date '+%F'`"
+  }
+
+
 function TreeSourceVersion {
   FILE="${1}"
   [ -f "${FILE}" ] || bail_out "No file to source at >${FILE}<"
