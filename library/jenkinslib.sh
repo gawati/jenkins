@@ -124,11 +124,11 @@ function makebuild {
 
   BASEEXCLUDES=''
   for i in .git .gitignore Jenkinsfile jenkinslib jenkinsPkgDataFile.txt build buildinclude buildexclude ; do
-    BASEEXCLUDES+=" --exclude='${i}'"
+    BASEEXCLUDES+=" --exclude '${i}'"
     done
 
   [ -d 'build' ] || mkdir build
-  rsync -av . build/ ${BASEEXCLUDES} ${INCLUDES} ${EXCLUDES}
+  eval rsync -av . build/ ${BASEEXCLUDES} ${INCLUDES} ${EXCLUDES}
   }
 
 
