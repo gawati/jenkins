@@ -12,6 +12,9 @@ DLD="${DLD:-/tmp/pkg}"
 
 declare -A Branch2Folder=( ["dev"]="dev" ["master"]="prod" )
 
+AboutDate="`date '+%F'`"
+
+JenkinsJson="{ 'build': '${AboutDate}' }"
 
 export PkgDataFile="jenkinsPkgDataFile.txt"
 BRANCH="${JOB_BASE_NAME:-`git branch | cut -d ' ' -f 2`}"
@@ -105,7 +108,7 @@ function PkgSourceData {
 
 
 function about {
-  echo -n "package=${PkgName};version=${PkgVersion};date=`date '+%F'`"
+  echo -n "package=${PkgName};version=${PkgVersion};date=${AboutDate}"
   }
 
 
@@ -123,7 +126,7 @@ function makebuild {
     }
 
   BASEEXCLUDES=''
-  for i in .git .gitignore Jenkinsfile jenkinslib jenkinsPkgDataFile.txt build buildinclude buildexclude ; do
+  for i in .git .gitignore Jenkinsfile jenkinslib.sh jenkinsPkgDataFile.txt build buildinclude buildexclude ; do
     BASEEXCLUDES+=" --exclude '${i}'"
     done
 
