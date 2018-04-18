@@ -7,7 +7,6 @@ TreeTableOptions='style="border-collapse: collapse; border: solid 1px black;"'
 TreeTableHeaderOptions='style="border: 1px solid black; text-align:center;"'
 TreeTableDataOptions='style="border: 1px solid black; text-align:center;"'
 
-[ "${JENKINS_HOME}" != "" ] && DLD="/var/www/html/dl.gawati.org"
 DLD="${DLD:-/tmp/pkg}"
 
 declare -A Branch2Folder=( ["dev"]="dev" ["master"]="prod" )
