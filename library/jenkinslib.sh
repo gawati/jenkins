@@ -130,7 +130,7 @@ function makebuild {
     done
 
   [ -d 'build' ] || mkdir build
-  eval rsync -av . build/ ${BASEEXCLUDES} ${INCLUDES} ${EXCLUDES}
+  eval rsync -a . build/ ${BASEEXCLUDES} ${INCLUDES} ${EXCLUDES}
   }
 
 
