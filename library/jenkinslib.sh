@@ -7,11 +7,13 @@ TreeTableOptions='style="border-collapse: collapse; border: solid 1px black;"'
 TreeTableHeaderOptions='style="border: 1px solid black; text-align:center;"'
 TreeTableDataOptions='style="border: 1px solid black; text-align:center;"'
 
-[ "${JENKINS_HOME}" != "" ] && DLD="/var/www/html/dl.gawati.org"
 DLD="${DLD:-/tmp/pkg}"
 
 declare -A Branch2Folder=( ["dev"]="dev" ["master"]="prod" )
 
+AboutDate="`date '+%F'`"
+
+JenkinsJson="{ 'build': '${AboutDate}' }"
 
 export PkgDataFile="jenkinsPkgDataFile.txt"
 BRANCH="${JOB_BASE_NAME:-`git branch | cut -d ' ' -f 2`}"
@@ -37,8 +39,8 @@ function message {
 
 function bail_out {
   message 3 "${2}"
-  #pause
-  kill -s TERM ${MYPID}
+  sleep 2
+  #kill -s TERM ${MYPID}
   }
 
 
@@ -46,6 +48,14 @@ function vardebug {
   for VARIABLE in $* ; do
     message 4 "${VARIABLE}: >${!VARIABLE}<" 2
     done
+  }
+
+
+function PkgInfo {
+  vardebug BRANCH PkgSource PkgName PkgVersion PkgBundleVersion PkgGitURL PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBranch PkgArchive PkgBundleRepo
+
+  message 4 "To reread package information into environment run: PkgSourceData" 1
+  message 4 "To write zip/tarball of cwd into ${PkgBranch} run: PkgPack" 1
   }
 
 
@@ -58,8 +68,6 @@ function PkgDerivedData {
   export PkgRepo="${PkgBranch}/${REPO}"
   export PkgArchive="${PkgBranch}/${ARCV}"
   export PkgBundleRepo="${PkgBranch}/${PkgBundleVersion}"
-
-  #vardebug BRANCH PkgSource PkgName PkgVersion PkgBundleVersion PkgGitURL PkgGitHash PkgFileGit PkgFileVer PkgFileLst PkgRepo PkgBranch PkgArchive PkgBundleRepo
   }
 
 
@@ -95,6 +103,34 @@ function PkgSourceData {
   export PkgGitHash="${GIT_COMMIT:-`git log --format="%H" -1 2>/dev/null`}"
 
   PkgDerivedData
+  }
+
+
+function about {
+  echo -n "package=${PkgName};version=${PkgVersion};date=${AboutDate}"
+  }
+
+
+function makebuild {
+  INCLUDES=''
+  EXCLUDES=''
+
+  [ -f 'buildinclude' ] && {
+    INCLUDES='--include-from buildinclude'
+    EXCLUDES='--exclude=*'
+    }
+
+  [ -f 'buildexclude' ] && {
+    EXCLUDES='--exclude-from buildexclude'
+    }
+
+  BASEEXCLUDES=''
+  for i in .git .gitignore Jenkinsfile jenkinslib.sh jenkinsPkgDataFile.txt build buildinclude buildexclude ; do
+    BASEEXCLUDES+=" --exclude '${i}'"
+    done
+
+  [ -d 'build' ] || mkdir build
+  eval rsync -a . build/ ${BASEEXCLUDES} ${INCLUDES} ${EXCLUDES}
   }
 
 
@@ -282,8 +318,8 @@ function PkgEnsureRepo {
 
 function PkgPack {
   PkgEnsureRepo
-  zip -r - . > "${PkgRepo}/${PkgFileGit}.zip"
-  tar -cvjf "${PkgRepo}/${PkgFileGit}.tbz" ./*
+  zip -9 -q -y -r - . > "${PkgRepo}/${PkgFileGit}.zip"
+  tar --owner=0 --group=0 -cjf "${PkgRepo}/${PkgFileGit}.tbz" .
   PkgResources="zip tbz"
   }
 
@@ -298,7 +334,4 @@ function PkgXar {
 MYPID=$$
 
 PkgSourceData
-
-#message 4 "To reread package information into environment run: PkgSourceData" 1
-#message 4 "To write zip/tarball of cwd into ${PkgBranch} run: PkgPack" 1
 
