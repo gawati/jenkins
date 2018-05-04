@@ -1,0 +1,4 @@
+PkgName="gawati-user-profiles"
+PkgFriendlyName="User Profile Server"
+PkgGitURL="https://github.com/gawati/gawati-user-profiles"
+PkgResources="tbz zip"
