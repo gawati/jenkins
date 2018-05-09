@@ -69,6 +69,7 @@ while in_data:
 for branch in PkgTable.keys():
   title = branch + " branch version table"
   print
+  print
   print title.capitalize()
   print '*'*len(title)
   print
