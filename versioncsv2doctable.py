@@ -92,7 +92,7 @@ for branch in PkgTable.keys():
   for line in PkgTable[branch]:
     #print line
     pkgline=line['Packages']
-    print ' '*indent*3 + '<td>'
+    print ' '*indent*3 + '<tr>'
     print ' '*indent*4 + td_in + '<a href="' + PkgDlURLRoot + '/' + branch + '/' + line['BundleVersion'] + '">' + line['BundleVersion'] + '</a>' + td_out
 
     for i in range(0,len(pkgline)):
@@ -102,7 +102,7 @@ for branch in PkgTable.keys():
       #print header
       print ' '*indent*4 + td_in  + '<a href="' + header['PkgRepoURL'] + '/tree/' + item['PackageHash'] + '">' + item['PackageVersion'] + '</a>' + td_out
 
-    print ' '*indent*3 + '</td>'
+    print ' '*indent*3 + '</tr>'
 
   print ' '*indent*1 + t_out
 
