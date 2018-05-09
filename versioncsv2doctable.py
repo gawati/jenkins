@@ -101,7 +101,10 @@ for branch in PkgTable.keys():
       header=PkgList[i]
       #print item
       #print header
-      print ' '*indent*4 + td_in  + '<a href="' + header['PkgRepoURL'] + '/tree/' + item['PackageHash'] + '">' + item['PackageVersion'] + '</a>' + td_out
+      if ( item['PackageVersion'] == 'N/A') :
+        print ' '*indent*4 + td_in  + 'N/A' + td_out
+      else:
+        print ' '*indent*4 + td_in  + '<a href="' + header['PkgRepoURL'] + '/tree/' + item['PackageHash'] + '">' + item['PackageVersion'] + '</a>' + td_out
 
     print ' '*indent*3 + '</tr>'
 
