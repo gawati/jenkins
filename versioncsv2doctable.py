@@ -89,8 +89,9 @@ for branch in PkgTable.keys():
   print ' '*indent*3 + '</tr>'
   print ' '*indent*2 + '</thead>'
 
+  branch_items = sorted(PkgTable[branch], key=lambda item: map(int, item["BundleVersion"].split(".")), reverse=True)
 
-  for line in PkgTable[branch]:
+  for line in branch_items:
     #print line
     pkgline=line['Packages']
     print ' '*indent*3 + '<tr>'
