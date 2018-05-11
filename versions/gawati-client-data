@@ -1,4 +1,4 @@
 PkgName="gawati-client-data"
-PkgFriendlyName="Gawati Client Data eXist App"
+PkgFriendlyName="Editor Data Services"
 PkgGitURL="https://github.com/gawati/gawati-client-data"
 PkgResources="xar"
