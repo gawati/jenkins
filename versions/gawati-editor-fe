@@ -1,0 +1,4 @@
+PkgName="gawati-editor-fe"
+PkgFriendlyName="Gawati Editor FE Service"
+PkgGitURL="https://github.com/gawati/gawati-editor-fe"
+PkgResources="tbz zip"
