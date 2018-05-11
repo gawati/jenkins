@@ -1,4 +1,4 @@
-PkgName="portal-server"
-PkgFriendlyName="Portal Server"
+PkgName="portal-fe"
+PkgFriendlyName="Portal FE"
 PkgGitURL="https://github.com/gawati/gawati-portal-fe"
 PkgResources="tbz zip"
