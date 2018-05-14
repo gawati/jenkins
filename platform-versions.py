@@ -32,7 +32,6 @@ HEADER_TEMPLATE = """
             <th style="border: 1px solid black; text-align:center;">Portal UI</th>
             <th style="border: 1px solid black; text-align:center;">Portal Server</th>
             <th style="border: 1px solid black; text-align:center;">Gawati Data</th>
-            <th style="border: 1px solid black; text-align:center;">Gawati Data XML</th>
         </tr>
     </thead>
     """
@@ -44,7 +43,6 @@ ROW_TEMPLATE = Template("""
             <td style="border: 1px solid black; text-align:center;">$portal_ui</td>
             <td style="border: 1px solid black; text-align:center;">$portal_server</td>
             <td style="border: 1px solid black; text-align:center;">$gawati_data</td>
-            <td style="border: 1px solid black; text-align:center;">$gw_data</td>
         </tr>
     """)
 
@@ -162,14 +160,15 @@ def generate_table(pkg_json):
         pkg_map["rel_date"] = pkg_version['rel_date']
         pkg_map["version_download"] = pkg_version['version_download']
         for pkg in pkgs:
-            #if pkg["version"] == "unrel":
-            #    pkg_map[pkg["name"].replace("-", "_")] = "N/A"
-            #else:
-            pkg_tmpl = Template("""
-                <a href="$pkg_url" title="github tree">$pkg_version</a> 
-                """)
-            pkg_url = {"pkg_url": pkg["PkgGitURL"] + "/tree/" + pkg["PkgGitHash"], "pkg_version": pkg["PkgVersion"]}
-            pkg_map[pkg["PkgName"].replace("-", "_")] = pkg_tmpl.substitute(pkg_url)
+            if hasattr(pkg, "PkgVersion"):
+                #if pkg["version"] == "unrel":
+                #    pkg_map[pkg["name"].replace("-", "_")] = "N/A"
+                #else:
+                pkg_tmpl = Template("""
+                    <a href="$pkg_url" title="github tree">$pkg_version</a> 
+                    """)
+                pkg_url = {"pkg_url": pkg["PkgGitURL"] + "/tree/" + pkg["PkgGitHash"], "pkg_version": pkg["PkgVersion"]}
+                pkg_map[pkg["PkgName"].replace("-", "_")] = pkg_tmpl.substitute(pkg_url)
         output_table.append(ROW_TEMPLATE.substitute(pkg_map))     
     return ''.join(output_table)
 
@@ -185,12 +184,13 @@ def version_info_page(this_version):
     )
     pkgs = this_version["packages"]
     for pkg in pkgs:
-        output_page.append(VERSION_INFO_ITEM_RST.substitute({
-            'PkgName': pkg['PkgName'], 
-            'PkgGitURL': pkg['PkgGitURL'],
-            'PkgVersion': pkg['PkgVersion'],
-            'PkgGitHashURL': pkg["PkgGitURL"] + "/tree/" + pkg["PkgGitHash"]
-        }))
+        if hasattr(pkg, "PkgVersion"):
+            output_page.append(VERSION_INFO_ITEM_RST.substitute({
+                'PkgName': pkg['PkgName'], 
+                'PkgGitURL': pkg['PkgGitURL'],
+                'PkgVersion': pkg['PkgVersion'],
+                'PkgGitHashURL': pkg["PkgGitURL"] + "/tree/" + pkg["PkgGitHash"]
+            }))
     output_page.append(VERSION_INFO_FOOTER_RST)
     return ''.join(output_page)
 
